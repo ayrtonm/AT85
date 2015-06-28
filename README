@@ -1,0 +1,6 @@
+This repo contains random snippets of code for the attiny85. It currently contains code for using the ADC, Timers, and interfacing with an ssd1306 OLED driver.
+-ADC: reads voltage on pin PB2 and returns 10-bit result. Set to free running mode(no interrupts necessary)
+  -planning on adding ability to detect Vcc by reading 1.1V internal voltage reference 
+-Timers: sets Timer1 and register A so interrupts occur about once per second (1.00057633 Hz exactly)
+-OLED: code based off of https://bitbucket.org/tinusaur/ssd1306xled
+  -planning on adding functions to print arbitrary strings and variables
