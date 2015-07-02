@@ -101,7 +101,7 @@ uint16_t read_avg_vcc()
   uint16_t vret2 = v1+v2;
   return (vret1+vret2)/4;
 }
-uint8_t read_buttons()
+uint8_t read_buttons(uint16_t measured)
 {
   uint8_t buttons = 0x00;
   if (measured > 549)
@@ -111,18 +111,18 @@ uint8_t read_buttons()
       if (measured > 920);//no buttons pressed, don't modify return value 
       else
       {
-        buttons |= (1 << SW3);
+        buttons |= SW3;
       }
     }
     else
     {
       if (measured > 635)
       {
-        buttons |= (1 << SW2);
+        buttons |= SW2;
       }
       else
       {
-        buttons |= (1 << SW2)|(1 << SW3);
+        buttons |= SW2|SW3;
       }
     }
   }
@@ -132,22 +132,22 @@ uint8_t read_buttons()
     {
       if (measured > 483)
       {
-        buttons |= (1 << SW1);
+        buttons |= SW1;
       }
       else
       {
-        buttons |= (1 << SW1)|(1 << SW3);
+        buttons |= SW1|SW3;
       }
     }
     else
     {
       if (measured > 391)
       {
-        buttons |= (1 << SW1)|(1 << SW2);
+        buttons |= SW1|SW2;
       }
       else
       {
-        buttons |= (1 << SW1)|(1 << SW2)|(1 << SW3); 
+        buttons |= SW1|SW2|SW3; 
       }
     }
   }
@@ -164,13 +164,40 @@ int main(void)
   oled_fillscreen(0x00);
   //somewhat useless function rn
   oled_setpos(0,0);
-  oled_string_8x16(0,0,"Vcc is:");
+  oled_string_8x16(0,0,"this is scrolling!");
   //oled_num_8x16(8,4,read_vcc());
+  //set scroll conditions
+  oled_send_command(0x26);
+  oled_send_command(0x00);
+  oled_send_command(0x00);
+  oled_send_command(0b00000111);
+  oled_send_command(0x01);
+  oled_send_command(0x00);
+  oled_send_command(0xff);
+  //activate scroll
+  oled_send_command(0x2f);
+  //change contrast
+  //apparently setting contrast to 0x00 does not make text black
+  oled_send_command(0x81);
+  oled_send_command(0x00);
   while(1)
   {
     if ((ADCSRA & (1 << ADSC))) {measured = ADC;}
-    oled_num_8x16(8,4,read_avg_vcc());
-    oled_num_8x16(16,2,measured);
+    oled_string_8x16(0,4,"vcc:");
+    oled_num_8x16(8*4,4,read_avg_vcc());
+    oled_num_8x16(16,2,read_buttons(measured));
+    oled_string_8x16(0,6,"time:");
+    oled_num_8x16(8*5,6,sc);
+    //stop scrolling top line after 100 seconds
+    if (sc == 100) 
+    {
+      oled_send_command(0x2e);
+    }
+    //inverts display every ten seconds
+    if (!(sc % 10))
+    {
+      oled_send_command(0xa6+ ((sc / 10) % 2));
+    }
     _delay_ms(10);
   }
 }
