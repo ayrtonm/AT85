@@ -190,7 +190,7 @@ uint8_t uint_to_ascii(uint16_t num, char *buffer)
       {
         if (pos < 4)
         {
-          digit = -3;//"-16" for space ' ', use "0" for zero, "-3" for minus
+          digit = 0;//"-16" for space ' ', use "0" for zero, "-3" for minus
         }
       }
       else 

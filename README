@@ -7,3 +7,17 @@ This repo contains random snippets of code for the attiny85. It currently contai
   -screen for plotting value
   -screen for displaying time
   -connect resistor ladder to ADC for buttons
+    -resistor values are 10k to vcc, 10k to sw1, 20k to sw2, 39k to sw3
+    -sw2 currently has 2 10k resistors, I should get some 20k instead
+    -adc should read the following values
+    sw1 sw2 sw3 adc
+    0   0   0   1023
+    0   0   1   818
+    0   1   0   683-688
+    0   1   1   586
+    1   0   0   512-513
+    1   0   1   454-455
+    1   1   0   409-410
+    1   1   1   371-372
+    the following values are halfway between each consecutive adc reading and are used for determining which buttons are pressed
+    920,751,635,549,483,432,391

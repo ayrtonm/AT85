@@ -5,7 +5,10 @@
 #include <util/delay.h>
 #include "oled.h"
 
-#define ADC_IN      PB2
+#define SW1 0x01
+#define SW2 0x02
+#define SW3 0x04
+
 uint8_t sc = 0; 
 ISR(TIM1_COMPA_vect)
 {
@@ -98,7 +101,58 @@ uint16_t read_avg_vcc()
   uint16_t vret2 = v1+v2;
   return (vret1+vret2)/4;
 }
-
+uint8_t read_buttons()
+{
+  uint8_t buttons = 0x00;
+  if (measured > 549)
+  {
+    if (measured > 751)
+    {
+      if (measured > 920);//no buttons pressed, don't modify return value 
+      else
+      {
+        buttons |= (1 << SW3);
+      }
+    }
+    else
+    {
+      if (measured > 635)
+      {
+        buttons |= (1 << SW2);
+      }
+      else
+      {
+        buttons |= (1 << SW2)|(1 << SW3);
+      }
+    }
+  }
+  else
+  {
+    if (measured > 432)
+    {
+      if (measured > 483)
+      {
+        buttons |= (1 << SW1);
+      }
+      else
+      {
+        buttons |= (1 << SW1)|(1 << SW3);
+      }
+    }
+    else
+    {
+      if (measured > 391)
+      {
+        buttons |= (1 << SW1)|(1 << SW2);
+      }
+      else
+      {
+        buttons |= (1 << SW1)|(1 << SW2)|(1 << SW3); 
+      }
+    }
+  }
+  return buttons;
+}
 int main(void)
 {
   cli();
