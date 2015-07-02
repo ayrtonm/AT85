@@ -79,7 +79,7 @@ uint16_t read_vcc(void)
   ADCSRA |= (1 << ADSC);
   while (!(ADCSRA & (1 << ADSC)));
   uint16_t measured_vcc = ADC;
-  uint16_t vccx10 = ((measured_11 *100) / measured_vcc)*11; 
+  uint16_t vccx10 = ((measured_11 *100) / measured_vcc)*107; 
   //restore old admux settings
   ADMUX = admux_old;
   //restore old adcsra settings
@@ -87,6 +87,16 @@ uint16_t read_vcc(void)
   //restore old adcsrb settings
   ADCSRB = adcsrb_old;
   return vccx10;
+}
+uint16_t read_avg_vcc()
+{
+  uint16_t v1 = read_vcc()/10;
+  uint16_t v2 = read_vcc()/10;
+  uint16_t vret1 = v1+v2;
+  v1 = read_vcc()/10;
+  v2 = read_vcc()/10;
+  uint16_t vret2 = v1+v2;
+  return (vret1+vret2)/4;
 }
 
 int main(void)
@@ -105,7 +115,8 @@ int main(void)
   while(1)
   {
     if ((ADCSRA & (1 << ADSC))) {measured = ADC;}
-    oled_num_8x16(8,4,read_vcc());
+    oled_num_8x16(8,4,read_avg_vcc());
+    oled_num_8x16(16,2,measured);
     _delay_ms(10);
   }
 }
