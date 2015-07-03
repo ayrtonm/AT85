@@ -48,59 +48,22 @@ void timer_init(void)
   //interrupt frequency will be 1.00057633 Hz
   //to keep accurate time, subtract 25 seconds every 12 hours and add 13 seconds every 56 days
 }
-//make no assumptions about ADMUX and ADCSRA and leave them unchanged
+//makes no assumptions about ADMUX and leave it unchanged
 uint16_t read_vcc(void)
 {
   //store old admux settings
   uint8_t admux_old = ADMUX;
-  //store old adcsra settings
-  uint8_t adcsra_old = ADCSRA;
-  //store old adcsrb settings
-  uint8_t adcsrb_old = ADCSRB;
-  //select ADC4 for temp measurement
-  ADMUX = 0x0F; 
-  //set vref to internal 1.1V reference
-  ADMUX |= (1 << REFS1);
-  _delay_ms(100);
-  ADCSRA = 0x00;
-  //set prescaler to 8
-  ADCSRA |= (1 << ADPS1)|(1 << ADPS0);
-  //set to free running mode
-  ADCSRB &= ~((1 << ADTS0)|(1 << ADTS1)|(1 << ADTS2));
-  //set signal source
-  ADCSRA |= (1 << ADATE);
-  //enable adc
-  ADCSRA |= (1 << ADEN);
-  ADCSRA |= (1 << ADSC);
-  while (!(ADCSRA & (1 << ADSC)));
-  uint16_t measured_11 = ADC;
-  ADCSRA &= ~(1 << ADEN);
-  ADCSRA |= (1 << ADEN);
-  //set vref to vcc 
-  ADMUX &= ~(1 << REFS1);
+  //read Vbg (bandgap voltage) using Vcc as Vref
+  ADMUX = 0x0C;
   _delay_ms(100);
   ADCSRA |= (1 << ADSC);
   while (!(ADCSRA & (1 << ADSC)));
-  uint16_t measured_vcc = ADC;
-  uint16_t vccx10 = ((measured_11 *100) / measured_vcc)*107; 
-  //restore old admux settings
+  uint16_t measured = ADC;
   ADMUX = admux_old;
-  //restore old adcsra settings
-  ADCSRA = adcsra_old;
-  //restore old adcsrb settings
-  ADCSRB = adcsrb_old;
+  uint16_t vccx10 = ((11*1023)/measured);
   return vccx10;
 }
-uint16_t read_avg_vcc()
-{
-  uint16_t v1 = read_vcc()/10;
-  uint16_t v2 = read_vcc()/10;
-  uint16_t vret1 = v1+v2;
-  v1 = read_vcc()/10;
-  v2 = read_vcc()/10;
-  uint16_t vret2 = v1+v2;
-  return (vret1+vret2)/4;
-}
+
 uint8_t read_buttons(uint16_t measured)
 {
   uint8_t buttons = 0x00;
@@ -164,7 +127,7 @@ int main(void)
   oled_fillscreen(0x00);
   //somewhat useless function rn
   oled_setpos(0,0);
-  oled_string_8x16(0,0,"this is scrolling!");
+  oled_string_8x16(0,0,"this is scrollin");
   //oled_num_8x16(8,4,read_vcc());
   //set scroll conditions
   oled_send_command(0x26);
@@ -184,7 +147,7 @@ int main(void)
   {
     if ((ADCSRA & (1 << ADSC))) {measured = ADC;}
     oled_string_8x16(0,4,"vcc:");
-    oled_num_8x16(8*4,4,read_avg_vcc());
+    oled_num_8x16(8*4,4,read_vcc());
     oled_num_8x16(16,2,read_buttons(measured));
     oled_string_8x16(0,6,"time:");
     oled_num_8x16(8*5,6,sc);
