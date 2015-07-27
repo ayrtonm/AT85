@@ -139,7 +139,6 @@ int main(void)
   uint16_t measured;
   sei();
   oled_fillscreen(0x00);
-  oled_string_8x8(0,0,"main bar mainbar");
   //oled_num_8x16(8,4,read_vcc());
   //set scroll conditions
   oled_send_command(0x26);
@@ -156,47 +155,35 @@ int main(void)
   //apparently setting contrast to 0x00 does not make text black
   oled_send_command(0x81);
   oled_send_command(0x00);
-  while(1)
+  for (;;)
   {
+    _delay_ms(1);
     if ((ADCSRA & (1 << ADSC))) {measured = ADC;}
-    oled_string_8x8(0,4,"zzz:");
-    oled_num_8x8(8*4,4,read_vcc());
-    oled_num_8x8(16,2,read_buttons(measured));
-    oled_num_8x8(0,6,hr);
-    oled_string_8x8(16,6,":");
-    oled_num_8x8(24,6,mn);
-    oled_string_8x8(36,6,":");
-    oled_num_8x8(42,6,sc);
+    if (s != read_buttons(measured))
+    {
+      s = read_buttons(measured);
+      oled_fillscreen(0x00);
+    }
     if (read_buttons(measured) & SW3)
     {
-      oled_send_command(0xc0);
+      oled_string_8x8(0,4,"vcc:");
+      uint8_t v = read_vcc(); 
+      oled_num_8x8(4,4,v/10);
+      oled_string_8x8(5,4,".");
+      oled_num_8x8(6,4,v%10);
+      oled_string_8x8(7,4,"volts");
     }
-    else
+    else if (read_buttons(measured) & SW2)
     {
-      oled_send_command(0xc8);
+      oled_string_8x8(0,0,"Title");
     }
-    if ((read_buttons(measured) & SW2) && !s)
+    else if (!read_buttons(measured))
     {
-      s ^= 1;
-      oled_fillscreen(0x00);
-      oled_send_command(0xa0);
+      oled_num_8x8(0,6,hr);
+      oled_string_8x8(2,6,":");
+      oled_num_8x8(3,6,mn);
+      oled_string_8x8(4,6,":");
+      oled_num_8x8(5,6,sc);
     }
-    else if (!(read_buttons(measured) & SW2) && s) 
-    {
-      s ^= 1;
-      oled_fillscreen(0x00);
-      oled_send_command(0xa1);
-    }
-    //stop scrolling top line after 1 seconds
-    //if (sc == 1) 
-    //{
-    //  oled_send_command(0x2e);
-    //}
-    //inverts display every ten seconds
-    //if (!(sc % 10))
-    //{
-    //  oled_send_command(0xa6+ ((sc / 10) % 2));
-    //}
-    _delay_ms(10);
   }
 }

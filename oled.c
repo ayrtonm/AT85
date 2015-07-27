@@ -112,6 +112,7 @@ void oled_fillscreen(uint8_t fill)
 }
 void oled_string_8x8(uint8_t x, uint8_t y, const char ch[])
 {
+  x *= 8;
   uint8_t c, j = 0;
   while (ch[j] != '\0')
   {
@@ -165,7 +166,7 @@ uint8_t uint_to_ascii(uint16_t num, char *buffer)
       {
         if (pos < 4)
         {
-          digit = 0;//"-16" for space ' ', use "0" for zero, "-3" for minus
+          digit = '0';//"-16" for space ' ', use "0" for zero, "-3" for minus
         }
       }
       else 
