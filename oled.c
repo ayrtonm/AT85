@@ -2,7 +2,7 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include "oled.h"
-#include "font8x16.h"
+#include "font8x8.h"
 
 const uint8_t oled_init_seq [] PROGMEM =
 {
@@ -108,10 +108,9 @@ void oled_fillscreen(uint8_t fill)
     {
       oled_send_byte(fill);
     }
-    oled_tx_stop();
   }
 }
-void oled_string_8x16(uint8_t x, uint8_t y, const char ch[])
+void oled_string_8x8(uint8_t x, uint8_t y, const char ch[])
 {
   uint8_t c, j = 0;
   while (ch[j] != '\0')
@@ -122,52 +121,28 @@ void oled_string_8x16(uint8_t x, uint8_t y, const char ch[])
       x = 0;
       y++;
     }
-    oled_setpos(x, y);
+    oled_setpos(x,y);
     oled_send_data_start();
-    uint8_t  i;
+    uint8_t i;
     for (i = 0; i < 8; i++)
     {
-      oled_send_byte(pgm_read_byte(&oled_font8x16[c * 16 + i]));
-    }
-    oled_tx_stop();
-    oled_setpos(x, y + 1);
-    oled_send_data_start();
-    for (i = 0; i < 8; i++)
-    {
-      oled_send_byte(pgm_read_byte(&oled_font8x16[c * 16 + i + 8]));
+      oled_send_byte(pgm_read_byte(&oled_font8x8[c*8+i]));
     }
     oled_tx_stop();
     x += 8;
     j++;
   }
 }
-void oled_draw_bmp(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, const uint8_t bitmap[])
-{
-	uint16_t j = 0;
-	uint8_t y;
-	if (y1 % 8 == 0) y = y1 / 8;
-	else y = y1 / 8 + 1;
-	for (y = y0; y < y1; y++)
-	{
-		oled_setpos(x0,y);
-		oled_send_data_start();
-    uint8_t x;
-		for (x = x0; x < x1; x++)
-		{
-			oled_send_byte(pgm_read_byte(&bitmap[j++]));
-		}
-		oled_tx_stop();
-	}
-}
+
 //buffer for ascii representation of numbers
 //for 16 bit number max decimal digits is 5 + 1 for '\0' string terminator
 char oled_num_buffer[6];
 
-void oled_num_8x16(uint8_t x, uint8_t y, uint16_t num)
+void oled_num_8x8(uint8_t x, uint8_t y, uint16_t num)
 {
   oled_num_buffer[5] = '\0';//terminate string
   uint8_t digits = uint_to_ascii(num,oled_num_buffer);
-  oled_string_8x16(x,y,oled_num_buffer + digits);
+  oled_string_8x8(x,y,digits + oled_num_buffer);
 }
 
 uint8_t uint_to_ascii(uint16_t num, char *buffer)

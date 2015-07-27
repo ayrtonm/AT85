@@ -1,23 +1,5 @@
 This repo contains random snippets of code for the attiny85. It currently contains code for using the ADC, Timers, and interfacing with an ssd1306 OLED driver.
--ADC: reads voltage on pin PB2 and returns 10-bit result. Set to free running mode(no interrupts necessary). Prescaler set to 8 so at 1MHz ck is 125kHz. read_vcc takes two measurements on ADC4 (temp sensor) and returns vcc * 1000
+-ADC: reads voltage on pin PB2 and returns 10-bit result. Set to free running mode(no interrupts necessary). Prescaler set to 8 so at 1MHz ck is 125kHz. read_vcc measures Vbg using Vcc as Vref, this is much more accurate and simpler than taking two measurements like before
 -Timers: sets Timer1 and register A so interrupts occur about once per second (1.00057633 Hz exactly)
 -OLED: code based off of https://bitbucket.org/tinusaur/ssd1306xled
   -planning on modifying oled_string_8x16 and oled_num_8x16 to not need x,y values
--UI: planning on adding user interface
-  -screen for plotting value
-  -screen for displaying time
-  -connect resistor ladder to ADC for buttons
-    -resistor values are 10k to vcc, 10k to sw1, 20k to sw2, 39k to sw3
-    -sw2 currently has 2 10k resistors, I should get some 20k instead
-    -adc should read the following values
-    sw1 sw2 sw3 adc
-    0   0   0   1023
-    0   0   1   818
-    0   1   0   683-688
-    0   1   1   586
-    1   0   0   512-513
-    1   0   1   454-455
-    1   1   0   409-410
-    1   1   1   371-372
-    the following values are halfway between each consecutive adc reading and are used for determining which buttons are pressed
-    920,751,635,549,483,432,391

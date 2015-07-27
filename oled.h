@@ -14,8 +14,8 @@ void oled_send_command(uint8_t cmd);
 void oled_send_data_start(void);
 void oled_setpos(uint8_t x, uint8_t y);
 void oled_fillscreen(uint8_t fill);
-void oled_string_8x16(uint8_t x, uint8_t y, const char ch[]);
+void oled_string_8x8(uint8_t x, uint8_t y, const char ch[]);
 void oled_draw_bmp(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, const uint8_t bitmap[]);
-void oled_num_8x16(uint8_t x, uint8_t y, uint16_t num);
+void oled_num_8x8(uint8_t x, uint8_t y, uint16_t num);
 uint8_t uint_to_ascii(uint16_t, char *);
 #endif
